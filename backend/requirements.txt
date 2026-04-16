@@ -1,4 +1,6 @@
-flask
+fastapi
+uvicorn
+python-multipart
 pillow
 pdf2image
 pymupdf
