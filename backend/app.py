@@ -20,11 +20,14 @@ app.add_middleware(
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
+FRONTEND_DIR = os.path.join(os.path.dirname(BASE_DIR), "frontend")
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 os.makedirs(STATIC_DIR, exist_ok=True)
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
+@app.get("/")
+async def serve_frontend():
+    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
 @app.post("/api/pre-procesar")
 async def pre_procesar(file: UploadFile = File(...)):
     session_id = str(uuid.uuid4())
