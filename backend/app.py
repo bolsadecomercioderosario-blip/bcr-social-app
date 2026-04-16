@@ -25,6 +25,7 @@ ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 os.makedirs(STATIC_DIR, exist_ok=True)
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name="frontend")
 @app.get("/")
 async def serve_frontend():
     return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
