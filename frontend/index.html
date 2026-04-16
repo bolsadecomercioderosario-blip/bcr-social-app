@@ -3,81 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BCR Social App - v2.1</title>
+    <title>BCR Social App - v2.2 (Responsive)</title>
     <style>
         :root {
             --primary: #005A9C;
             --secondary: #27ae60;
             --bg: #F4F6F8;
             --card: #FFFFFF;
+            --text: #333;
         }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 2rem; color: #333; }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 2rem 1rem; 
+            color: var(--text); 
+            line-height: 1.5;
+        }
+
         .container { max-width: 1000px; margin: auto; }
+        
         .header { text-align: center; margin-bottom: 2rem; }
-        .upload-card { background: var(--card); padding: 2rem; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        .file-input { margin-bottom: 1.5rem; border: 1px dashed #BBB; padding: 1.5rem; width: calc(100% - 3rem); border-radius: 8px; cursor: pointer; }
-        
-        .step-2 { display: none; margin-top: 2rem; text-align: left; background: #eef2f7; padding: 1.5rem; border-radius: 12px; border: 1px solid #d1d9e6; }
-        .title-edit { width: 100%; padding: 0.8rem; font-size: 1.1rem; border: 1px solid #AAA; border-radius: 6px; box-sizing: border-box; margin: 10px 0; }
-        
-        .preview-pane { display: flex; gap: 1.5rem; align-items: flex-start; margin-top: 1rem; }
-        .preview-thumb { width: 180px; border: 1px solid #CCC; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); background: white; }
-        .preview-controls { flex: 1; }
+        .header h1 { margin: 0; font-size: 1.8rem; color: var(--primary); }
+        .header p { margin: 0.5rem 0 0; opacity: 0.8; }
 
-        button { background: var(--primary); color: white; border: none; padding: 0.9rem 1.8rem; font-size: 1rem; border-radius: 6px; cursor: pointer; transition: opacity 0.2s; }
+        .card { 
+            background: var(--card); 
+            padding: 1.5rem; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-section { text-align: center; }
+
+        .file-input { 
+            margin-bottom: 1rem; 
+            border: 2px dashed #BBB; 
+            padding: 1.5rem; 
+            width: 100%; 
+            border-radius: 8px; 
+            cursor: pointer;
+            background: #fafafa;
+        }
+
+        /* Sección de corrección (ahora integrada y más limpia) */
+        .correction-panel { 
+            display: none; 
+            background: #eef2f7; 
+            padding: 1.5rem; 
+            border-radius: 12px; 
+            border: 1px solid #d1d9e6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .preview-flex { 
+            display: flex; 
+            gap: 1.5rem; 
+            align-items: center; 
+        }
+        
+        .preview-thumb { 
+            width: 150px; 
+            border: 1px solid #CCC; 
+            border-radius: 4px; 
+            background: white; 
+            flex-shrink: 0;
+        }
+        
+        .correction-controls { flex: 1; }
+        .title-edit { 
+            width: 100%; 
+            padding: 0.8rem; 
+            font-size: 1rem; 
+            border: 1px solid #AAA; 
+            border-radius: 6px; 
+            margin: 0.5rem 0 1rem; 
+        }
+
+        button { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 0.8rem 1.5rem; 
+            font-size: 1rem; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            font-weight: 600;
+        }
         button:disabled { background: #CCC; cursor: not-allowed; }
-        button:hover:not(:disabled) { opacity: 0.9; }
-        .btn-generate { background: #2c3e50; font-weight: bold; width: 100%; margin-top: 1rem; }
-        .btn-copy { background: #1da1f2; margin-top: 10px; width: 100%; }
+        button:active { transform: scale(0.98); }
 
-        .results { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
-        .result-card { background: var(--card); padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        textarea { width: 100%; height: 220px; resize: none; font-family: inherit; padding: 0.8rem; box-sizing: border-box; border-radius: 6px; border: 1px solid #DDD; }
-        img.res-img { max-width: 100%; height: auto; border: 1px solid #EEE; margin-top: 1.5rem; border-radius: 4px; display: block; margin-left: auto; margin-right: auto; }
-        .btn-link { display: inline-block; background: var(--secondary); color: white; padding: 0.9rem 1rem; text-decoration: none; border-radius: 6px; margin-top: 1.5rem; font-weight: bold; text-align: center; width: calc(100% - 2rem); }
-        .loading { display: none; margin-top: 1rem; font-weight: bold; color: var(--primary); }
-        h3 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #EEE; padding-bottom: 0.5rem; }
-        label { font-weight: bold; color: #555; }
+        .btn-main { width: 100%; font-size: 1.1rem; }
+        .btn-generate { background: #2c3e50; width: 100%; }
+        .btn-copy { background: #1da1f2; margin-top: 10px; width: 100%; }
+        .btn-link { 
+            display: block; 
+            background: var(--secondary); 
+            color: white; 
+            padding: 0.9rem; 
+            text-decoration: none; 
+            border-radius: 6px; 
+            margin-top: 1rem; 
+            font-weight: bold; 
+            text-align: center;
+        }
+
+        .results { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 1.5rem; 
+            margin-top: 1rem; 
+        }
+
+        h3 { margin-top: 0; font-size: 1.2rem; color: #2c3e50; border-bottom: 2px solid #EEE; padding-bottom: 0.5rem; }
+        textarea { 
+            width: 100%; 
+            height: 180px; 
+            resize: none; 
+            font-family: inherit; 
+            padding: 0.8rem; 
+            border-radius: 6px; 
+            border: 1px solid #DDD; 
+        }
+        
+        img.res-img { 
+            max-width: 100%; 
+            height: auto; 
+            border: 1px solid #EEE; 
+            border-radius: 8px; 
+            display: block; 
+            margin: 1rem auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .loading { 
+            display: none; 
+            text-align: center; 
+            padding: 1rem; 
+            font-weight: bold; 
+            color: var(--primary); 
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        /* RESPONSIVIDAD MÓVIL */
+        @media (max-width: 768px) {
+            body { padding: 1rem 0.5rem; }
+            .header h1 { font-size: 1.5rem; }
+            
+            .preview-flex { flex-direction: column; text-align: center; }
+            .preview-thumb { width: 120px; }
+            
+            .results { grid-template-columns: 1fr; }
+            
+            button, .btn-link { 
+                padding: 1rem; 
+                font-size: 1.1rem; 
+            }
+
+            .card { padding: 1rem; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Generador Social BCR v2.1</h1>
-            <p>Optimizado con Vista Previa y Comunicados Gigantes</p>
+            <h1>BCR Social v2.2</h1>
+            <p>Generación Automática y Diseño Responsive</p>
         </div>
 
-        <div class="upload-card">
+        <div class="card upload-section">
             <input type="file" id="pdfInput" class="file-input" accept="application/pdf">
-            <br>
-            <button id="preProcessBtn">1. Subir y Analizar PDF</button>
-            <div id="loader" class="loading">Procesando archivo...</div>
-            
-            <div id="step2" class="step-2">
-                <p style="margin-top: 0; font-weight: bold; color: var(--primary);">✅ Documento cargado. Por favor verifica el título:</p>
-                <div class="preview-pane">
-                    <img id="pdfPreviewImg" src="" alt="Vista previa PDF" class="preview-thumb">
-                    <div class="preview-controls">
-                        <label for="titleInput">Título del Comunicado:</label>
-                        <input type="text" id="titleInput" class="title-edit">
-                        <button id="generateBtn" class="btn-generate">2. Generar Piezas Finales</button>
-                    </div>
+            <button id="preProcessBtn" class="btn-main">Analizar PDF y Generar Todo</button>
+            <div id="loader" class="loading">⚙️ Procesando documento y generando piezas...</div>
+        </div>
+
+        <!-- Panel de Corrección (Se muestra después de la carga inicial) -->
+        <div id="step2" class="correction-panel">
+            <div class="preview-flex">
+                <img id="pdfPreviewImg" src="" alt="Vista previa PDF" class="preview-thumb">
+                <div class="correction-controls">
+                    <label for="titleInput"><strong>¿El título es correcto?</strong></label>
+                    <input type="text" id="titleInput" class="title-edit" placeholder="Título del comunicado...">
+                    <button id="generateBtn" class="btn-generate">Regenerar con este título</button>
                 </div>
             </div>
         </div>
 
         <div id="results" class="results" style="display: none;">
-            <div class="result-card">
+            <div class="card">
                 <h3>X (Twitter)</h3>
                 <textarea id="twitterText" readonly></textarea>
-                <button id="copyXBtn" class="btn-copy">Copiar texto para X</button>
+                <button id="copyXBtn" class="btn-copy">Copiar Post para X</button>
                 
-                <h3 style="margin-top: 2rem;">Comunicado JPG</h3>
+                <h3 style="margin-top: 2rem;">Post JPG</h3>
                 <img id="comunicadoImg" src="" alt="Comunicado" class="res-img">
                 <a id="downloadComunicadoBtn" href="#" class="btn-link">Descargar comunicado.jpg</a>
             </div>
 
-            <div class="result-card">
+            <div class="card">
                 <h3>Instagram Story</h3>
                 <img id="storyImg" src="" alt="Story IG" class="res-img">
                 <a id="downloadStoryBtn" href="#" class="btn-link">Descargar story_instagram.jpg</a>
