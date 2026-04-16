@@ -24,7 +24,7 @@ document.getElementById('preProcessBtn').addEventListener('click', async () => {
     formData.append('file', fileInput.files[0]);
 
     try {
-        const response = await fetch('http://127.0.0.1:8002/api/pre-procesar', {
+        const response = await fetch('/api/pre-procesar', {
             method: 'POST',
             body: formData
         });
@@ -38,7 +38,7 @@ document.getElementById('preProcessBtn').addEventListener('click', async () => {
             sessionData.pdf_path = data.pdf_path;
             
             document.getElementById('titleInput').value = data.title;
-            document.getElementById('pdfPreviewImg').src = `http://127.0.0.1:8002${data.preview_url}?t=${new Date().getTime()}`;
+            document.getElementById('pdfPreviewImg').src = `${data.preview_url}?t=${new Date().getTime()}`;
             step2.style.display = 'block';
         }
     } catch (error) {
@@ -64,7 +64,7 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
     formData.append('title', title);
 
     try {
-        const response = await fetch('http://127.0.0.1:8002/api/generar', {
+        const response = await fetch('/api/generar', {
             method: 'POST',
             body: formData
         });
@@ -76,11 +76,11 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
         } else {
             document.getElementById('twitterText').value = data.twitter_text;
             
-            document.getElementById('comunicadoImg').src = `http://127.0.0.1:8002${data.comunicado_img}?t=${new Date().getTime()}`;
-            document.getElementById('downloadComunicadoBtn').href = `http://127.0.0.1:8002${data.comunicado_url}`;
+            document.getElementById('comunicadoImg').src = `${data.comunicado_img}?t=${new Date().getTime()}`;
+            document.getElementById('downloadComunicadoBtn').href = data.comunicado_url;
             
-            document.getElementById('storyImg').src = `http://127.0.0.1:8002${data.story_img}?t=${new Date().getTime()}`;
-            document.getElementById('downloadStoryBtn').href = `http://127.0.0.1:8002${data.story_url}`;
+            document.getElementById('storyImg').src = `${data.story_img}?t=${new Date().getTime()}`;
+            document.getElementById('downloadStoryBtn').href = data.story_url;
 
             results.style.display = 'grid';
             window.scrollTo({ top: results.offsetTop, behavior: 'smooth' });
