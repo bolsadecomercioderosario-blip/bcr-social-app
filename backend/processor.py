@@ -119,7 +119,11 @@ def create_ig_mockup(data, pdf_thumb_path, assets_dir, output_path):
     canvas.paste(logo_bcr, (bg_x + 25, head_y_center - 40), logo_bcr)
     font_header_bold = ImageFont.truetype(font_bold_path, 30)
     draw.text((bg_x + 120, head_y_center - 32), "Bolsa de Comercio de Rosario", font=font_header_bold, fill=(0, 0, 0))
-    font_handle = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 22)
+    font_bold_path = os.path.join(assets_dir, "AdobeGaramondPro-Semibold.otf")
+font_regular_path = os.path.join(assets_dir, "Inter-Regular.ttf")
+
+font_header_bold = ImageFont.truetype(font_bold_path, 30)
+font_handle = ImageFont.truetype(font_regular_path, 22)
     draw.text((bg_x + 120, head_y_center + 6), "@BolsaRosario", font=font_handle, fill=(101, 119, 134))
     
     # 4. TITULO
