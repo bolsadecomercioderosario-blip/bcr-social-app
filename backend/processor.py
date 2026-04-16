@@ -86,18 +86,19 @@ def generate_pdf_thumbnail(pdf_path, output_path):
 def create_ig_mockup(data, pdf_thumb_path, assets_dir, output_path):
     # --- CONFIGURACIÓN V3.2 (ESCALADO DINÁMICO) ---
     bg_w = 830   # Ancho pantalla interna
-    bg_x = (1080 - bg_w) // 2 
-    bg_y = 220   
-    bg_h_total = 1480 
-    
+    bg_x = (1080 - bg_w) // 2
+    bg_y = 220
+    bg_h_total = 1480
+
     # Padding interno solicitado (5%)
-    comm_padding = int(bg_w * 0.05) 
-    
+    comm_padding = int(bg_w * 0.05)
+
     h_header = int(bg_h_total * 0.10)
     h_title = int(bg_h_total * 0.15)
-    
+
     show_title = not data.get("has_visual_title", False)
-    if not show_title: h_title = 0
+    if not show_title:
+        h_title = 0
 
     # 1. Fondo + Desenfoque + Overlay
     bg_path = os.path.join(assets_dir, "fondo_bcr_edificio.jpg")
@@ -106,92 +107,85 @@ def create_ig_mockup(data, pdf_thumb_path, assets_dir, output_path):
     overlay = Image.new('RGBA', canvas.size, (0, 10, 30, 100))
     canvas = Image.alpha_composite(canvas, overlay)
     draw = ImageDraw.Draw(canvas)
-    
+
     # 2. Pantalla Interna (Fondo blanco del Tweet)
     draw.rounded_rectangle((bg_x, bg_y, bg_x + bg_w, bg_y + bg_h_total), radius=40, fill=(255, 255, 255, 255))
-    
+
     font_bold_path = os.path.join(assets_dir, "AdobeGaramondPro-Semibold.otf")
-    if not os.path.exists(font_bold_path): font_bold_path = "C:\\Windows\\Fonts\\arialbd.ttf"
-    
+    font_regular_path = os.path.join(assets_dir, "Inter-Regular.ttf")
+
+    if not os.path.exists(font_regular_path):
+        font_regular_path = font_bold_path
+
     # 3. HEADER
     head_y_center = bg_y + (h_header // 2)
     logo_bcr = Image.open(os.path.join(assets_dir, "logo_bcr.png")).convert("RGBA").resize((80, 80), Image.Resampling.LANCZOS)
     canvas.paste(logo_bcr, (bg_x + 25, head_y_center - 40), logo_bcr)
-    font_header_bold = ImageFont.truetype(font_bold_path, 30)
-    draw.text((bg_x + 120, head_y_center - 32), "Bolsa de Comercio de Rosario", font=font_header_bold, fill=(0, 0, 0))
-    font_bold_path = os.path.join(assets_dir, "AdobeGaramondPro-Semibold.otf")
-font_regular_path = os.path.join(assets_dir, "Inter-Regular.ttf")
 
-font_header_bold = ImageFont.truetype(font_bold_path, 30)
-font_handle = ImageFont.truetype(font_regular_path, 22)
+    font_header_bold = ImageFont.truetype(font_bold_path, 30)
+    font_handle = ImageFont.truetype(font_regular_path, 22)
+
+    draw.text((bg_x + 120, head_y_center - 32), "Bolsa de Comercio de Rosario", font=font_header_bold, fill=(0, 0, 0))
     draw.text((bg_x + 120, head_y_center + 6), "@BolsaRosario", font=font_handle, fill=(101, 119, 134))
-    
+
     # 4. TITULO
     title_height_actual = 0
     if show_title:
         title_text = data.get("title", "Comunicado")
-        font_size = 36 
+        font_size = 36
         title_zone_y = bg_y + h_header
         while font_size > 18:
             font_title = ImageFont.truetype(font_bold_path, font_size)
-            title_wrapped = textwrap.fill(title_text, width=int(1400/font_size))
+            title_wrapped = textwrap.fill(title_text, width=int(1400 / font_size))
             if len(title_wrapped.split('\n')) > 3:
                 font_size -= 2
                 continue
             bbox = draw.multiline_textbbox((0, 0), title_wrapped, font=font_title, spacing=6)
-            title_height_actual = bbox[3]-bbox[1]
-            if title_height_actual < (h_title - 30): break
+            title_height_actual = bbox[3] - bbox[1]
+            if title_height_actual < (h_title - 30):
+                break
             font_size -= 2
-        draw_title_y = title_zone_y + 20 # Margen fijo arriba (no centrado en zona)
+        draw_title_y = title_zone_y + 20
         draw.multiline_text((bg_x + 25, draw_title_y), title_wrapped, font=font_title, fill=(15, 20, 25), spacing=6)
         title_height_actual += 20
-    
-    # 5. COMUNICADO + ESCALADO DINÁMICO (v3.2)
+
+    # 5. COMUNICADO + ESCALADO DINÁMICO
     pdf_thumb = Image.open(pdf_thumb_path).convert("RGBA")
     pdf_thumb = autocrop_image(pdf_thumb, threshold=245)
-    
-    # Calcular espacio vertical disponible total debajo de header/título
-    comm_y_start = bg_y + h_header + title_height_actual + 15 # Margen fijo de respiro
-    bottom_y_limit = bg_y + bg_h_total - 40 # 40px antes del final del smartphone
-    
+
+    comm_y_start = bg_y + h_header + title_height_actual + 15
+    bottom_y_limit = bg_y + bg_h_total - 40
+
     available_h_total = bottom_y_limit - comm_y_start - (comm_padding * 2)
     max_w_comm_box = bg_w - (comm_padding * 2)
-    
-    # Lógica: Ocupar cerca del 90% del espacio vertical disponible si es posible
+
     target_h_occupancy = available_h_total * 0.90
-    
-    # El escalado debe respetar el aspecto y no desbordar ancho
+
     scale_w = max_w_comm_box / pdf_thumb.width
     scale_h = target_h_occupancy / pdf_thumb.height
-    
-    # Usar el escalado que mejor llene la zona sin desbordar
-    # Si el documento es muy ancho, scale_w mandará. Si es largo, mandará h.
     scale = min(scale_w, scale_h)
-    
+
     thumb_w, thumb_h = int(pdf_thumb.width * scale), int(pdf_thumb.height * scale)
     pdf_thumb = pdf_thumb.resize((thumb_w, thumb_h), Image.Resampling.LANCZOS)
-    
-    # Marco Blanco dinámico al tamaño del PDF escalado
+
     card_w, card_h = thumb_w + (comm_padding * 2), thumb_h + (comm_padding * 2)
     white_card = Image.new('RGBA', (card_w, card_h), (255, 255, 255, 255))
     mask_card = Image.new('L', (card_w, card_h), 0)
     ImageDraw.Draw(mask_card).rounded_rectangle((0, 0, card_w, card_h), radius=20, fill=255)
     white_card.putalpha(mask_card)
-    
+
     white_card.paste(pdf_thumb, (comm_padding, comm_padding), pdf_thumb)
-    
-    # Sombra al marco blanco
+
     card_with_shadow = add_drop_shadow(white_card, offset=(0, 8), shadow_color=(0, 0, 0, 38))
-    
-    # Pegado con margen superior fijo (no verticalmente centrado en zona vacía)
+
     paste_x = bg_x + (bg_w - card_with_shadow.width) // 2
-    paste_y = comm_y_start - 30 # Offset para compensar sombra y padding (ajustado visualmente)
-    
+    paste_y = comm_y_start - 30
+
     canvas.paste(card_with_shadow, (paste_x, paste_y), card_with_shadow)
-    
+
     # 6. CAPA FINAL: MARCO CELULAR
     marco = Image.open(os.path.join(assets_dir, "marco_celular.png")).convert("RGBA").resize((1080, 1920), Image.Resampling.LANCZOS)
     canvas.paste(marco, (0, 0), marco)
-    
+
     canvas.convert("RGB").save(output_path, "JPEG", quality=95)
     return output_path
